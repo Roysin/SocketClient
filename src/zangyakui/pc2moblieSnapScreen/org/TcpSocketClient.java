@@ -54,18 +54,30 @@ public class TcpSocketClient {
 				oStream=mSocket.getOutputStream();
 				iStream=mSocket.getInputStream();
 				
-				oStream.write("I am client and please reply".getBytes("gbk"));
+				oStream.write("I am client and please reply".getBytes());
+				oStream.write("eof".getBytes());
+				oStream.flush();
 				System.out.println("client send successfully");
-				oStream.close();
+				
 //				System.out.println("Client: I am client and please reply");
 				
+				int length=0;
+				int index=0;
 				byte[] b =new byte[1024];
-				StringBuilder sb=new StringBuilder();
-				while(iStream.read(b,0,20)!=-1){
-					sb.append(b.toString());
+				
+				StringBuffer sb=new StringBuffer();
+				while((length=iStream.read(b))!=-1){
+					String tmp=new String(b,0,length);
+					if((index=tmp.indexOf("eof"))!=-1){
+						sb.append(tmp,0,index);
+						break;
+					}
+					sb.append(tmp,0,length);
 				}
-				System.out.println("reply from server: "+sb.toString());
+				System.out.println("receive from server: "+sb);
+				
 				iStream.close();
+				oStream.close();
 				mSocket.close();
 				
 			} catch (IOException e) {
